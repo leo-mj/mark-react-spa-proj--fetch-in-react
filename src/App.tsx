@@ -6,33 +6,32 @@ interface Dackel {
 }
 
 function App() {
-  const [dackel, setDackel] = useState<string>();
+  const [prevDackelArray, setDackelArray] = useState<(string|undefined)[]>([]);
 
-  const handleGetDackel = async () => {
+  const handleDackelArray = async () => {
     const response = await fetch(
       "https://dog.ceo/api/breed/dachshund/images/random"
     );
     const jsonBody: Dackel = await response.json();
-    setDackel(jsonBody.message);
-  
-  };
+    setDackelArray(prevDackelArray => [jsonBody.message, ...prevDackelArray]);
+  }
 
-  // const handleGetJoke = () => {
-  //   fetch("https://jokestemp.neillbogie.repl.co/jokes/general/random")
-  //     .then((response) => response.json())
-  //     .then((jsonBody: Joke[]) => setJoke(jsonBody[0]));
-  // };
-
-  if (dackel) {
+  if (prevDackelArray.length>0) {
     return (
       <div>
         <h1>Dackel app</h1>
         <details>
           <summary>Look at this Dackel!</summary>
-          <img src={dackel} alt="A cute dackel"/>
+          <img src={prevDackelArray[0]} alt="A cute dackel" width="400px"/>
         </details>
         <hr />
-        <button onClick={handleGetDackel}>Get another dackel</button>
+        <button onClick={handleDackelArray}>Get another dackel</button>
+        {prevDackelArray.length > 1 &&
+        <details>
+          <summary>Here are your other dackels!</summary>
+          {prevDackelArray.map((dackel, i)=>
+            (i>0) &&<img key={i} src={dackel} alt="another cute dackel" width="200px"/>)}
+        </details>}
       </div>
     );
   } else {
@@ -43,7 +42,7 @@ function App() {
           Click the button to trigger a <code>fetch</code> that gets a random
           dackel from an API!
         </p>
-        <button onClick={handleGetDackel}>Get new dackel!</button>
+        <button onClick={handleDackelArray}>Get new dackel!</button>
       </div>
     );
   }
